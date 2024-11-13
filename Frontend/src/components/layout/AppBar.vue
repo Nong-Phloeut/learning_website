@@ -21,7 +21,11 @@
         {{ item.title }}
       </v-btn>
     </v-col>
-    {{ isAuthenticated }} is {{ isLoggedIn }} local
+    <v-col class="badge">
+      <v-badge :content="carts.length">
+        <v-icon icon="mdi-cart" size="x-large"></v-icon>
+      </v-badge>
+    </v-col>
     <template v-slot:append>
       <div v-if="!isLoggedIn" width="560px">
         <v-btn
@@ -32,15 +36,16 @@
         >
           Sing In
         </v-btn>
-        <v-btn rounded="lg" class="ms-3 bg-orange text-white" @click="openRegisterDialog">
+        <v-btn
+          rounded="lg"
+          class="ms-3 bg-orange text-white"
+          @click="openRegisterDialog"
+        >
           Register
         </v-btn>
       </div>
-      <div v-else>
-        <!-- <v-badge content="9+" class="me-4">
-          <v-icon icon="mdi-cart" size="x-large"></v-icon>
-        </v-badge> -->
 
+      <div v-else>
         <v-menu v-model="menu">
           <template v-slot:activator="{ props }">
             <v-list v-if="authUser.username != undefined">
@@ -109,6 +114,7 @@
   import RegisterDialog from './../auth/RegisterDialog.vue'
   import SignInDialog from './../auth/SignInDialog.vue'
   import { mapActions, mapState } from 'pinia'
+import { useCartStore } from '../../stores/cart'
   export default {
     name: 'Appbar',
     emits: ['toggle'],
@@ -121,26 +127,21 @@
       loading: true,
       loged: true,
       navItems: [
-        { title: 'Home', path: '/home' },
-        { title: 'Courses', path: '/course' },
-        { title: 'Wishlist', path: '/wishlist' }
-      ],
-      items: [
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me 2' }
+        { title: 'Home', path: '/' },
+        { title: 'Courses', path: '/course' }
       ]
     }),
     created() {
       const token = localStorage.getItem('authToken')
       if (token) {
         this.getUser()
+        this.getCarts()
       }
     },
 
     computed: {
       ...mapState(useAuthStore, ['authUser', 'isAuthenticated']),
+      ...mapState(useCartStore,['carts']),
       isLoggedIn() {
         return this.isAuthenticated || !!localStorage.getItem('authToken')
       },
@@ -152,11 +153,11 @@
             icon: 'mdi-account',
             path: '/user'
           },
-          {
-            text: this.$t('navigation.security'),
-            icon: 'mdi-lock-check-outline',
-            action: 'changePassword'
-          },
+          // {
+          //   text: this.$t('navigation.security'),
+          //   icon: 'mdi-lock-check-outline',
+          //   action: 'changePassword'
+          // },
           {
             text: this.$t('navigation.logout'),
             icon: 'mdi-logout',
@@ -168,6 +169,7 @@
 
     methods: {
       ...mapActions(useAuthStore, ['logout', 'getUser']),
+      ...mapActions(useCartStore,['getCarts']),
       openRegisterDialog() {
         this.$refs.registerDialog.openDialog()
       },
@@ -175,7 +177,7 @@
         this.$refs.signInDialog.openDialog()
       },
       backHome() {
-        this.$router.push({ path: '/home' })
+        this.$router.push({ path: '/' })
       },
       logoutUser() {
         this.$root.$confirm({
@@ -216,3 +218,9 @@
     }
   }
 </script>
+<style scoped>
+.badge{
+  display: flex;
+  justify-content: center;
+}
+</style>

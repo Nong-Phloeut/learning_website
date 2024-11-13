@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Favorites;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
@@ -20,10 +21,10 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    public function getByUserId(string $id)
+    public function getByUserId()
     {
         // Get all favorite items for the user and load related courses
-        $favorites = Favorites::where('user_id', $id)->with('course')->get();
+        $favorites = Favorites::where('user_id', Auth::id())->with('course')->get();
 
         // Extract course information from each favorite item
         $courses = $favorites->pluck('course')->unique('id')->values();
@@ -68,8 +69,13 @@ class FavoriteController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $courseId)
     {
-        //
+        $favorite = Favorites::where('course_id', $courseId)
+                         ->where('user_id', auth()->id())
+                         ->first();
+        $favorite->delete();
+
+        return response()->json(['message' => 'Item removed from favotie'], 200);
     }
 }

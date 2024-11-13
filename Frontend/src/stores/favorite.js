@@ -2,12 +2,13 @@ import { defineStore } from 'pinia'
 import {
   addFavorite,
   fetchFavorites,
-  fetchFavoriteByUser
+  fetchFavoriteByUser,
+  deleteFavorite
 } from '../api/favorite'
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
     favorites: [],
-    wishlist:[]
+    wishlist: []
   }),
   actions: {
     async addFavorite(data) {
@@ -18,10 +19,14 @@ export const useFavoriteStore = defineStore('favorite', {
       const response = await fetchFavorites()
       this.favorites = response.data
     },
-    async getFavoriteByUser(id) {
-      const response = await fetchFavoriteByUser(id)
-      console.log(response.data.courses);
+    async getFavoriteByUser() {
+      const response = await fetchFavoriteByUser()
       this.wishlist = response.data.courses
+    },
+    async removeFavorite(id) {
+      const response = await deleteFavorite(id)
+      return response
+      // this.wishlist = response.data.courses
     }
   }
 })

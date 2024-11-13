@@ -16,11 +16,16 @@ class Favorites extends Model
 
     public static function store($request, $id = null)
     {
-        $favorites = $request->only(
-            'id',
-            'user_id',
-            'course_id'
-        );
+        // Check if the user is authenticated
+        $userId = auth()->id();
+
+        if (!$userId) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        $favorites = $request->only('course_id');
+        $favorites['user_id'] = $userId;
+
         if ($id) {
             $favorite = self::find($id);
             if (!$favorite) {

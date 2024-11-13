@@ -9,7 +9,7 @@ const routes = [
     // Stay within the parent route, you can set up your routes to be nested properly.
     children: [
       {
-        path: '/home',
+        path: '/',
         name: 'home',
         component: () => import('@/views/home/Home.vue'),
         meta: { requiresAuth: true }
@@ -30,6 +30,12 @@ const routes = [
             path: 'wishlist',
             name: 'wishlist',
             component: () => import('@/views/wishlist/Wishlist.vue'),
+            meta: { requiresAuth: true }
+          },
+          {
+            path: 'my-cart',
+            name: 'my-cart',
+            component: () => import('@/views/user/MyCart.vue'),
             meta: { requiresAuth: true }
           }
         ]

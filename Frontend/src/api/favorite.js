@@ -7,6 +7,9 @@ export function fetchFavorites() {
   return http.get(`/favorites`)
 }
 
-export function fetchFavoriteByUser(id) {
-  return http.get(`/favorite/${id}`)
+export function fetchFavoriteByUser() {
+  return http.get(`user/favorite`)
+}
+export function deleteFavorite(id) {
+  return http.delete(`/user/favorite/${id}`)
 }

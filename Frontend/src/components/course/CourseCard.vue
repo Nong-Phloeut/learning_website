@@ -33,22 +33,24 @@
 
           <div class="my-4 text-subtitle-1">$ {{ course.price }}</div>
         </v-card-text>
-
+        {{ isFavorite(course.id) }}
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <!-- :color="isFavorite(course.id) ? 'red' : 'medium-emphasis'"
-          :icon="isFavorite(course.id) ? 'mdi-heart' : 'mdi-heart-outline'" -->
           <v-btn
             size="small"
-            icon="mdi-heart-outline"
+            :color="isFavorite(course.id) ? 'red' : 'medium-emphasis'"
+            :icon="isFavorite(course.id) ? 'mdi-heart' : 'mdi-heart-outline'"
             @click="toggleFavorite(course.id)"
           ></v-btn>
 
+          <!-- color="medium-emphasis"
+          icon="mdi-cart-outline" -->
           <v-btn
-            color="medium-emphasis"
-            icon="mdi-cart-outline"
+            :color="isAddToCart(course.id) ? 'red' : 'medium-emphasis'"
+            :icon="isAddToCart(course.id) ? 'mdi-cart' : 'mdi-cart-outline'"
             size="small"
+            @click="toggleAddToCart(course.id)"
           ></v-btn>
           <v-btn
             color="medium-emphasis"
@@ -75,7 +77,7 @@
       ></v-skeleton-loader>
     </v-col>
   </v-row>
-
+  {{ wishlist }}
   <!-- Use the CheckoutDialog component -->
   <checkout-dialog
     :dialog="checkoutDialog"
@@ -93,6 +95,7 @@
   import { useFavoriteStore } from '../../stores/favorite'
   import CheckoutDialog from '../payment/CheckoutDialog.vue'
   import RegisterDialog from '../auth/RegisterDialog.vue'
+  import { useCartStore } from '../../stores/cart'
   // import PaymentStepper from '../payment/PaymentStepper.vue'
 
   export default {
@@ -105,7 +108,7 @@
     data() {
       return {
         form: {
-          user_id: 1,
+          // user_id: 1,
           course_id: ''
         },
         checkoutDialog: false,
@@ -116,39 +119,97 @@
     },
     created() {
       this.getCourses({})
-      this.getFavorites()
+      const token = localStorage.getItem('authToken')
+      if (token) {
+        this.getFavoriteByUser()
+        this.getCarts()
+      }
     },
     computed: {
       ...mapState(useCourseStore, ['courses']),
-      ...mapState(useFavoriteStore, ['favorites']),
-      isFavorite(courseId) {
-        return this.favorites.includes(courseId)
+      ...mapState(useFavoriteStore, ['wishlist']),
+      ...mapState(useCartStore, ['carts']),
+      isFavorite() {
+        return courseId => {
+          return this.wishlist && this.wishlist.some(fav => fav.id === courseId)
+        }
       },
-      isLoading() {
-        if (this.courses.length == 0) {
-          this.loading = true
+      isAddToCart() {
+        return courseId => {
+          return (
+            this.carts && this.carts.some(cart => cart.id === courseId)
+          )
         }
       }
     },
     methods: {
       ...mapActions(useCourseStore, ['getCourses']),
-      ...mapActions(useFavoriteStore, ['addFavorite', 'getFavorites']),
-      toggleFavorite(courseId) {
+      ...mapActions(useFavoriteStore, [
+        'addFavorite',
+        'getFavoriteByUser',
+        'removeFavorite'
+      ]),
+      ...mapActions(useCartStore, ['addCart', 'getCarts']),
+      async toggleFavorite(courseId) {
+        // Check if the course is already in the wishlist
+        const isFav = this.isFavorite(courseId)
+        if (isFav) {
+          // If it is in favorites, remove it
+          await this.removeFavorite(courseId)
+            .then(() => {
+              this.$root.$notif('Favorite removed successfully', {
+                type: 'success',
+                color: 'primary'
+              })
+            })
+            .catch(error => {
+              console.log(error)
+              this.$root.$notif(error.message || error, {
+                type: 'error',
+                color: 'error'
+              })
+            })
+        } else {
+          // If it is not in favorites, add it
+          this.form.course_id = courseId
+          await this.addFavorite(this.form)
+            .then(() => {
+              this.$root.$notif('Favorite added successfully', {
+                type: 'success',
+                color: 'primary'
+              })
+            })
+            .catch(error => {
+              this.$root.$notif(error.message || error, {
+                type: 'error',
+                color: 'error'
+              })
+            })
+        }
+
+        await this.getFavoriteByUser()
+      },
+
+      async toggleAddToCart(courseId) {
         this.form.course_id = courseId
-        this.addFavorite(this.form)
+        await this.addCart(this.form)
           .then(() => {
-            this.$root.$notif('Favorite added successfully', {
+            this.$root.$notif('Cart added successfully', {
               type: 'success',
               color: 'primary'
             })
           })
           .catch(error => {
-            this.$root.$notif(error, {
-              type: 'success',
-              color: 'primary'
+            // console.log(error.response.data.error);
+            this.$root.$notif(error.response.data.error || error, {
+              type: 'error',
+              color: 'error'
             })
           })
+
+        this.getCarts()
       },
+
       openCheckoutDialog(course) {
         this.selectedCourse = course
         this.checkoutDialog = true

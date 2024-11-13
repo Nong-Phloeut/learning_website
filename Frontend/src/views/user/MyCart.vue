@@ -2,17 +2,17 @@
   <v-container fluid>
     <v-row dense>
       <v-col
-        v-for="(course, index) in wishlist"
-        :key="course.id"
+        v-for="(cart, index) in carts"
+        :key="cart.id"
         cols="12"
         sm="4"
         md="3"
       >
         <v-card>
-          <v-img :src="course.image" height="200px" cover></v-img>
-          <v-card-title>{{ course.title }}</v-card-title>
+          <v-img :src="cart.image" height="200px" cover></v-img>
+          <v-card-title>{{ cart.title }}</v-card-title>
           <v-card-text>
-            <p class="text-h6">${{ course.price }}</p>
+            <p class="text-h6">${{ cart.price }}</p>
           </v-card-text>
 
           <v-card-actions>
@@ -21,7 +21,7 @@
               color="error"
               variant="outlined"
               size="small"
-              @click="handleFavorite(course.id)"
+              @click="handleRemoveCart(cart.id)"
             >
               Remove
             </v-btn>
@@ -33,7 +33,7 @@
       </v-col>
     </v-row>
 
-    <v-alert v-if="wishlist.length === 0" type="info" class="mt-6">
+    <v-alert v-if="carts.length === 0" type="info" class="mt-6">
       Your wishlist is empty. Start adding your favorite courses!
     </v-alert>
   </v-container>
@@ -41,19 +41,29 @@
 
 <script>
   import { mapActions, mapState } from 'pinia'
-  import { useFavoriteStore } from '../../stores/favorite'
+  import { useCartStore } from '../../stores/cart'
+
   export default {
-    name: 'WishlistPage',
     data() {
-      return {}
+      return {
+        form: {
+          course_id: ''
+        }
+      }
+    },
+    created() {
+      const token = localStorage.getItem('authToken')
+      if (token) {
+        this.getCarts()
+      }
     },
     computed: {
-      ...mapState(useFavoriteStore, ['wishlist'])
+      ...mapState(useCartStore, ['carts'])
     },
     methods: {
-      ...mapActions(useFavoriteStore, ['getFavoriteByUser','removeFavorite']),
-      handleFavorite(courseId) {
-        this.removeFavorite(courseId)
+      ...mapActions(useCartStore, ['getCarts', 'removeCart']),
+      handleRemoveCart(courseId) {
+        this.removeCart(courseId)
           .then(() => {
             this.$root.$notif('Item removed from wishlist', {
               type: 'success',
@@ -67,18 +77,8 @@
               color: 'error'
             })
           })
-        this.getFavoriteByUser()
+        this.getCarts()
       }
-    },
-    created() {
-      this.getFavoriteByUser()
     }
   }
 </script>
-
-<style scoped>
-  .v-container {
-    max-width: 1200px;
-    margin: auto;
-  }
-</style>

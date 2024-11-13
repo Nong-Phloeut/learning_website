@@ -45,21 +45,12 @@
           <v-col cols="12" md="6" lg="6">
             <v-text-field
               density="compact"
-              :label="$t('common.firstName')"
+              v-model="authUser.username"
+              label="Username"
               variant="outlined"
               prepend-inner-icon="mdi-card-account-details-outline"
               readonly
               color="textField"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="6" lg="6">
-            <v-text-field
-              color="textField"
-              density="compact"
-              :label="$t('common.lastName')"
-              variant="outlined"
-              readonly
-              prepend-inner-icon="mdi-card-account-details-outline"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -78,6 +69,7 @@
           <v-col cols="12" md="6" lg="6">
             <v-date-input
               color="textField"
+              v-model="authUser.username"
               density="compact"
               :label="$t('common.dateOfBirth')"
               variant="outlined"
@@ -92,6 +84,7 @@
           <v-col cols="12" md="6" lg="6">
             <v-text-field
               color="textField"
+              v-model="authUser.email"
               density="compact"
               :label="$t('common.email')"
               variant="outlined"
@@ -102,6 +95,7 @@
           <v-col cols="12" md="6" lg="6">
             <v-text-field
               color="textField"
+              v-model="authUser.phone_number"
               density="compact"
               :label="$t('common.phoneNumer')"
               variant="outlined"
@@ -126,3 +120,23 @@
     </v-form>
   </v-container>
 </template>
+<script>
+  import { mapActions, mapState } from 'pinia'
+  import { useAuthStore } from '../../stores/auth'
+
+  export default {
+    name: 'Profile',
+    data() {
+      return {}
+    },
+    computed: {
+      ...mapState(useAuthStore, ['authUser'])
+    },
+    methods: {
+      ...mapActions(useAuthStore, ['getUser'])
+    },
+    created() {
+      this.getUser()
+    }
+  }
+</script>
