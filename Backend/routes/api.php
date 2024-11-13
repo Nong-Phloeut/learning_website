@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\OrderController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -36,6 +37,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('user/favorite', [FavoriteController::class, 'getByUserId']);
     Route::get('/favorites', [CourseController::class, 'index']);
     Route::delete('/user/favorite/{id}', [FavoriteController::class, 'destroy']);
+    Route::get('/', [OrderController::class, 'index']);
+    Route::post('/', [OrderController::class, 'store']);
 });
 
 Route::get('/categories', [CategoryController::class, 'index']);

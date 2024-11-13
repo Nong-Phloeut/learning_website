@@ -43,11 +43,11 @@
         </v-form>
 
         <v-divider class="my-4"></v-divider>
-
+<!-- 
         <v-btn color="red darken-1" class="mb-3" block @click="googleSignIn">
           <v-icon start>mdi-google</v-icon>
           Sign Up with Google
-        </v-btn>
+        </v-btn> -->
       </v-card-text>
     </v-card>
   </v-dialog>

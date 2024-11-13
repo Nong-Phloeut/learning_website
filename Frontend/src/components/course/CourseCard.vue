@@ -28,7 +28,8 @@
             <div class="text-grey ms-4">4.5 (413)</div>
           </v-row>
 
-          <div class="my-4 text-subtitle-1">$ {{ course.price }}</div>
+          <div class="mt-6 text-subtitle-1">$ {{ course.price }}</div>
+          <div class="text-subtitle-1">{{ course.lessons }} Lessons</div>
         </v-card-text>
 
         <v-card-actions>
@@ -50,7 +51,7 @@
             color="medium-emphasis"
             class="bg-primary"
             size="small"
-            @click="handleBuyNowClick(course)"
+            @click="handleBuyNowClick(course.id)"
           >
             Buy now
           </v-btn>
@@ -58,9 +59,6 @@
       </v-card>
     </v-col>
   </v-row>
-  <!-- <v-alert v-if="carts.length === 0" type="info" class="mt-6">
-      Cousre filter is empty
-    </v-alert> -->
   <v-row v-else>
     <v-col v-for="i in 4">
       <v-skeleton-loader
@@ -76,11 +74,13 @@
 
   <checkout-dialog
     :dialog="checkoutDialog"
-    :courseName="selectedCourse?.name"
-    @close="closeCheckoutDialog"
+    :courseId="selectedCourseId"
+    :price="selectedCoursePrice"
+    :name="selectedCourseName"
+    @update:dialog="checkoutDialog = $event"
     @payment-success="handlePaymentSuccess"
-  />
-  <register-dialog v-if="showLoginDialog" @close="showLoginDialog = false" />
+    />
+
 </template>
 <script>
   import CourseFilter from '../filters/CourseFilter.vue'
@@ -88,14 +88,12 @@
   import { useCourseStore } from '../../stores/course'
   import { useFavoriteStore } from '../../stores/favorite'
   import CheckoutDialog from '../payment/CheckoutDialog.vue'
-  import RegisterDialog from '../auth/RegisterDialog.vue'
   import { useCartStore } from '../../stores/cart'
 
   export default {
     components: {
       CourseFilter,
-      CheckoutDialog,
-      RegisterDialog
+      CheckoutDialog
     },
     data() {
       return {
@@ -103,7 +101,9 @@
           course_id: ''
         },
         checkoutDialog: false,
-        selectedCourse: null,
+        selectedCourseId: null,
+        selectedCoursePrice: null,
+        selectedCourseName: null,
         showLoginDialog: false,
         loading: false
       }
@@ -115,7 +115,6 @@
         this.getFavoriteByUser()
         this.getCarts()
       }
-      // this.simulateLoading()
     },
     computed: {
       ...mapState(useCourseStore, ['courses']),
@@ -140,19 +139,9 @@
         'removeFavorite'
       ]),
       ...mapActions(useCartStore, ['addCart', 'getCarts']),
-      // simulateLoading() {
-      //   this.loading = true
-
-      //   // Simulate loading time, e.g., 3 seconds
-      //   setTimeout(() => {
-      //     this.loading = false
-      //   }, 20) // 3000ms = 3 seconds
-      // },
       async toggleFavorite(courseId) {
-        // Check if the course is already in the wishlist
         const isFav = this.isFavorite(courseId)
         if (isFav) {
-          // If it is in favorites, remove it
           await this.removeFavorite(courseId)
             .then(() => {
               this.$root.$notif('Favorite removed successfully', {
@@ -168,7 +157,6 @@
               })
             })
         } else {
-          // If it is not in favorites, add it
           this.form.course_id = courseId
           await this.addFavorite(this.form)
             .then(() => {
@@ -177,10 +165,10 @@
                 color: 'primary'
               })
             })
-            .catch(error => {
-              this.$root.$notif(error.message || error, {
-                type: 'error',
-                color: 'error'
+            .catch(() => {
+              this.$root.$notif('Please login or register first.', {
+                type: 'warning',
+                color: 'warning'
               })
             })
         }
@@ -198,32 +186,47 @@
             })
           })
           .catch(error => {
-            // console.log(error.response.data.error);
-            this.$root.$notif(error.response.data.error || error, {
-              type: 'error',
-              color: 'error'
-            })
+            if (localStorage.getItem('authToken')) {
+              this.$root.$notif(error.response.data.error || error, {
+                type: 'error',
+                color: 'error'
+              })
+            } else {
+              this.$root.$notif('Please login or register first.', {
+                type: 'warning',
+                color: 'warning'
+              })
+            }
           })
 
         this.getCarts()
       },
 
-      openCheckoutDialog(course) {
-        this.selectedCourse = course
-        this.checkoutDialog = true
-      },
-      handleBuyNowClick(course) {
+      handleBuyNowClick(courseId) {
+        console.log(courseId)
+        this.selectedCourseId = courseId
+        this.selectedCourseName = courseId
+        this.selectedCoursePrice = courseId
         if (localStorage.getItem('authToken')) {
-          // If authToken exists, proceed with checkout
-          this.openCheckoutDialog(course)
+          this.checkoutDialog = true
+
+          const selectedCourse = this.courses.find(
+            course => course.id === courseId
+          )
+          if (selectedCourse) {
+            this.selectedCourseId = selectedCourse.id
+            this.selectedCourseName = selectedCourse.title
+            this.selectedCoursePrice = selectedCourse.price
+          }
         } else {
-          // If authToken is missing, prompt login/register
-          this.showLoginDialog = true
+          this.$root.$notif('Please login or register first.', {
+            type: 'warning',
+            color: 'warning'
+          })
         }
       },
       closeCheckoutDialog() {
         this.checkoutDialog = false
-        this.selectedCourse = null
       },
       handlePaymentSuccess() {
         this.closeCheckoutDialog()

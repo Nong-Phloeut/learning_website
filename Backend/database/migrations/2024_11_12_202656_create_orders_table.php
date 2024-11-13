@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('total_amount', 10, 2);
+            $table->foreignId('course_id')->constrained()->onDelete('cascade');
+            $table->decimal('price', 10, 2);
             $table->string('status')->default('pending');
             $table->timestamps();
         });
