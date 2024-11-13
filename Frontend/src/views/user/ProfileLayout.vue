@@ -33,11 +33,10 @@
       return {
         sidebarItems: [
           { title: 'My Profile', icon: 'mdi-account', path: 'profile' },
-          { title: 'My Orders', icon: 'mdi-cart' },
+          { title: 'My Orders', icon: 'mdi-cart', path: 'my-order' },
           { title: 'My Wishlist', icon: 'mdi-heart', path: 'wishlist' },
-          { title: 'My Credits', icon: 'mdi-cash', value: '$440' },
-          { title: 'My Cart', icon: 'mdi-cash', path: 'my-cart' },
-          { title: 'How To Spend', icon: 'mdi-credit-card' }
+          { title: 'My Credits', icon: 'mdi-cash', path: 'my-card' },
+          { title: 'My Cart', icon: 'mdi-cash', path: 'my-cart' }
         ]
       }
     },

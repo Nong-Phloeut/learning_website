@@ -10,7 +10,7 @@
         />
       </v-avatar>
     </v-card-title>
-    <v-col cols="8" class="text-center">
+    <v-col cols="7" class="text-end">
       <v-btn
         variant="text"
         v-for="item in navItems"
@@ -221,6 +221,6 @@ import { useCartStore } from '../../stores/cart'
 <style scoped>
 .badge{
   display: flex;
-  justify-content: center;
+  justify-content: end;
 }
 </style>
