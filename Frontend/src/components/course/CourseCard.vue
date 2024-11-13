@@ -3,15 +3,12 @@
   <custom-title icon="mdi-book">Academic Courses</custom-title>
   <v-row v-if="courses.length != 0">
     <v-col cols="12" md="3" v-for="course in courses" :key="course.name">
-      <!-- <v-skeleton-loader
-        :loading="loading"
-        type="image, list-item-two-line"
-      > -->
       <v-card>
         <v-img
           :src="course.image"
           class="align-end"
           gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+          max-width="300px"
           height="200px"
           cover
         >
@@ -33,7 +30,7 @@
 
           <div class="my-4 text-subtitle-1">$ {{ course.price }}</div>
         </v-card-text>
-        {{ isFavorite(course.id) }}
+
         <v-card-actions>
           <v-spacer></v-spacer>
 
@@ -43,9 +40,6 @@
             :icon="isFavorite(course.id) ? 'mdi-heart' : 'mdi-heart-outline'"
             @click="toggleFavorite(course.id)"
           ></v-btn>
-
-          <!-- color="medium-emphasis"
-          icon="mdi-cart-outline" -->
           <v-btn
             :color="isAddToCart(course.id) ? 'red' : 'medium-emphasis'"
             :icon="isAddToCart(course.id) ? 'mdi-cart' : 'mdi-cart-outline'"
@@ -62,9 +56,11 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-      <!-- </v-skeleton-loader> -->
     </v-col>
   </v-row>
+  <!-- <v-alert v-if="carts.length === 0" type="info" class="mt-6">
+      Cousre filter is empty
+    </v-alert> -->
   <v-row v-else>
     <v-col v-for="i in 4">
       <v-skeleton-loader
@@ -77,15 +73,13 @@
       ></v-skeleton-loader>
     </v-col>
   </v-row>
-  {{ wishlist }}
-  <!-- Use the CheckoutDialog component -->
+
   <checkout-dialog
     :dialog="checkoutDialog"
     :courseName="selectedCourse?.name"
     @close="closeCheckoutDialog"
     @payment-success="handlePaymentSuccess"
   />
-  <!-- <PaymentStepper></PaymentStepper> -->
   <register-dialog v-if="showLoginDialog" @close="showLoginDialog = false" />
 </template>
 <script>
@@ -96,19 +90,16 @@
   import CheckoutDialog from '../payment/CheckoutDialog.vue'
   import RegisterDialog from '../auth/RegisterDialog.vue'
   import { useCartStore } from '../../stores/cart'
-  // import PaymentStepper from '../payment/PaymentStepper.vue'
 
   export default {
     components: {
       CourseFilter,
       CheckoutDialog,
       RegisterDialog
-      // PaymentStepper
     },
     data() {
       return {
         form: {
-          // user_id: 1,
           course_id: ''
         },
         checkoutDialog: false,
@@ -124,6 +115,7 @@
         this.getFavoriteByUser()
         this.getCarts()
       }
+      // this.simulateLoading()
     },
     computed: {
       ...mapState(useCourseStore, ['courses']),
@@ -136,9 +128,7 @@
       },
       isAddToCart() {
         return courseId => {
-          return (
-            this.carts && this.carts.some(cart => cart.id === courseId)
-          )
+          return this.carts && this.carts.some(cart => cart.id === courseId)
         }
       }
     },
@@ -150,6 +140,14 @@
         'removeFavorite'
       ]),
       ...mapActions(useCartStore, ['addCart', 'getCarts']),
+      // simulateLoading() {
+      //   this.loading = true
+
+      //   // Simulate loading time, e.g., 3 seconds
+      //   setTimeout(() => {
+      //     this.loading = false
+      //   }, 20) // 3000ms = 3 seconds
+      // },
       async toggleFavorite(courseId) {
         // Check if the course is already in the wishlist
         const isFav = this.isFavorite(courseId)

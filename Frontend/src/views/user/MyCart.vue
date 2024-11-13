@@ -82,3 +82,11 @@
     }
   }
 </script>
+
+<style scoped>
+  .v-container {
+    max-width: 1200px;
+    margin: auto;
+  }
+</style>
+

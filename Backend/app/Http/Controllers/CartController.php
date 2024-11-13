@@ -14,7 +14,7 @@ class CartController extends Controller
     public function index()
     {
         $cartItems = Cart::where('user_id', Auth::id())
-        ->with('course:id,category_id,title,description,price,lessons,rating,created_at,updated_at')
+        ->with('course:id,category_id,title,description,price,lessons,rating,image')
                      ->get()
                      ->map(function ($cart) {
                          return $cart->course;

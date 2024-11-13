@@ -22,7 +22,7 @@
       </v-btn>
     </v-col>
     <v-col class="badge">
-      <v-badge :content="carts.length">
+      <v-badge :content="carts.length" @click="myCart()" class="cursor-pointer" color="green">
         <v-icon icon="mdi-cart" size="x-large"></v-icon>
       </v-badge>
     </v-col>
@@ -114,7 +114,7 @@
   import RegisterDialog from './../auth/RegisterDialog.vue'
   import SignInDialog from './../auth/SignInDialog.vue'
   import { mapActions, mapState } from 'pinia'
-import { useCartStore } from '../../stores/cart'
+  import { useCartStore } from '../../stores/cart'
   export default {
     name: 'Appbar',
     emits: ['toggle'],
@@ -141,7 +141,7 @@ import { useCartStore } from '../../stores/cart'
 
     computed: {
       ...mapState(useAuthStore, ['authUser', 'isAuthenticated']),
-      ...mapState(useCartStore,['carts']),
+      ...mapState(useCartStore, ['carts']),
       isLoggedIn() {
         return this.isAuthenticated || !!localStorage.getItem('authToken')
       },
@@ -169,7 +169,10 @@ import { useCartStore } from '../../stores/cart'
 
     methods: {
       ...mapActions(useAuthStore, ['logout', 'getUser']),
-      ...mapActions(useCartStore,['getCarts']),
+      ...mapActions(useCartStore, ['getCarts']),
+      myCart(){
+        this.$router.push('/user/my-cart');
+      },
       openRegisterDialog() {
         this.$refs.registerDialog.openDialog()
       },
@@ -219,8 +222,8 @@ import { useCartStore } from '../../stores/cart'
   }
 </script>
 <style scoped>
-.badge{
-  display: flex;
-  justify-content: end;
-}
+  .badge {
+    display: flex;
+    justify-content: end;
+  }
 </style>
