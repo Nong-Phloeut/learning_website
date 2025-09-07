@@ -13,8 +13,9 @@ services:
       SERVICE_TAGS: dev
     working_dir: /var/www/html/
     volumes:
-      - ./:/var/www/html/
-      - ./php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
+      - ./:/var/www/html/        # Mount source code
+      - backend_vendor:/var/www/html/vendor  # Keep vendor folder
+      - ./php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini # Custom PHP configuration
     networks:
       - app-network
 
