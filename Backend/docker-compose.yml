@@ -46,7 +46,19 @@ services:
       - "81:81"
     networks:
       - app-network
-
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: learning_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
 #Docker Networks
 networks:
   app-network:
@@ -54,4 +66,5 @@ networks:
 
 #Docker Volumes
 volumes:
-  backend_vendor:
+    backend_vendor:
+    mysql_data:

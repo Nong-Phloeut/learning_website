@@ -9,19 +9,6 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\OrderController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
-// Route::post('auth/login', [AuthController::class, 'login']);
-
-// // Protected routes
-// Route::middleware('auth:api')->group(function () {
-//     Route::get('user', [AuthController::class, 'getUser']);
-//     Route::post('logout', [AuthController::class, 'logout']);
-//     Route::post('/password/change', [ChangePasswordController::class, 'changePassword']);
-// });
-
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
