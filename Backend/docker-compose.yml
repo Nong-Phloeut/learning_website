@@ -51,3 +51,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+#Docker Volumes
+volumes:
+  backend_vendor:
