@@ -1,8 +1,5 @@
 FROM php:8.3-fpm
 
-# Copy composer.lock and composer.json into the working directory
-COPY composer.lock composer.json /var/www/html/
-
 # Set working directory
 WORKDIR /var/www/html/
 
@@ -15,24 +12,23 @@ RUN apt-get update && apt-get install -y \
     git \
     curl
 
-# Install extensions for php
-RUN docker-php-ext-install pdo_mysql
-RUN docker-php-ext-install gd
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql gd
 
-# Install composer (php package manager)
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# ✅ Install PHP dependencies (this was missing)
-RUN composer install --no-dev --optimize-autoloader
-
-# Copy existing application directory contents to the working directory
+# Copy full application code (including artisan)
 COPY . /var/www/html
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
 # Assign permissions of the working directory to the www-data user
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache
 
-# Expose port 9000 and start php-fpm server (for FastCGI Process Manager)
+# Expose port 9000 and start php-fpm
 EXPOSE 9000
 CMD ["php-fpm"]
